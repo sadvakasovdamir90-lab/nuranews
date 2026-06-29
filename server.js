@@ -93,6 +93,21 @@ app.post('/api/enhance-text', async (req, res) => {
     }
 });
 
+// 6. 🛡️ ТЕЛЕГРАМ АВТОРИЗАЦИЯСЫН ҚАБЫЛДАУ
+app.post('/api/auth/telegram', (req, res) => {
+    const user = req.body;
+    
+    // Мұнда қолданушының деректерін тексеріп, сессия ашуға болады
+    console.log("Телеграмнан келген дерек:", user);
+
+    // Сәтті жауап қайтару
+    res.json({ 
+        success: true, 
+        message: "Авторизация сәтті өтті",
+        user: user 
+    });
+});
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
