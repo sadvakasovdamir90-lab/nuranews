@@ -264,39 +264,35 @@
 
     <script>
     // ТЕЛЕГРАМНАН КЕЛГЕН ДЕРЕКТЕРДІ ҚАБЫЛДАУ
-   window.onTelegramAuth = async function(user) {
-    console.log("Телеграмнан келген дерек:", user);
-    
-    // 1. Егер аты сан болса немесе бос болса, 'Пользователь' деп береміз
-    if (!user.first_name || /^\d+$/.test(user.first_name)) {
-        user.first_name = "Житель";
-    }
+  window.onTelegramAuth = async function(user) {
+    console.log("Телеграм деректері:", user);
 
-    try {
-        const response = await fetch('/api/auth/telegram', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(user)
-        });
+    // 1. Алдымен серверге жіберіп тексеріп аламыз
+    const response = await fetch('/api/auth/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(user)
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+        // 2. Телеграм қолданушысын уақытша Firebase-пен байланыстыру үшін 
+        // сессияны localStorage-қа жазамыз
+        localStorage.setItem('temp_tg_user', JSON.stringify({
+            uid: 'tg_' + user.id, // Телеграм ID-ін UID ретінде қолданамыз
+            name: user.first_name + (user.last_name ? ' ' + user.last_name : ''),
+            photoURL: user.photo_url || ""
+        }));
+
+        // 3. Енді регистрация формасын ашамыз
+        document.getElementById('modal-auth').classList.add('hidden');
+        document.getElementById('modal-complete-profile').classList.remove('hidden');
         
-        const result = await response.json();
-        
-        if (result.success) {
-            sessionStorage.setItem('tg_user', JSON.stringify(result.user));
-            
-            // 2. АТТЫ ТЕКСЕРУ: Егер ат әлі де стандартты болса, регистрацияны аяқтау терезесін ашамыз
-            if (user.first_name === "Житель") {
-                document.getElementById('modal-auth').classList.add('hidden');
-                document.getElementById('modal-complete-profile').classList.remove('hidden');
-                document.getElementById('reg-name').value = ""; // Пайдаланушы өз атын жазуы үшін
-            } else {
-                window.location.href = "profile.html";
-            }
-        } else {
-            alert("Қате: " + result.message);
-        }
-    } catch (error) {
-        alert("Сервермен байланыс үзілді.");
+        // Почтаны автоматты түрде толтырамыз (телеграмның өзінің почтасы жоқ болғандықтан)
+        document.getElementById('reg-email').value = user.id + "@telegram.user"; 
+        document.getElementById('reg-email').disabled = true; // Өзгертуге болмайды
+        document.getElementById('reg-name').value = user.first_name;
     }
 };
 </script>
@@ -369,51 +365,58 @@
         });
       }
 
-      // 3. ФОРМАНЫ САҚТАУ ЖӘНЕ ПРОФИЛЬГЕ ӨТУ (Жаңартылған, қатесіз логика)
-      const regForm = document.getElementById('form-complete-profile');
-      if (regForm) {
-        regForm.addEventListener('submit', async (e) => {
-            e.preventDefault(); // Беттің автоматты түрде жаңарып кетуін қатаң тоқтатады
+     // 3. ФОРМАНЫ САҚТАУ ЖӘНЕ ПРОФИЛЬГЕ ӨТУ (Жаңартылған, Google және Telegram үшін)
+const regForm = document.getElementById('form-complete-profile');
+if (regForm) {
+    regForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
 
-            // Уақытша жадыдан емес, нақты сеанстан аламыз
-            const user = auth.currentUser;
-            if (!user) {
-                alert("Ошибка сеанса. Пожалуйста, войдите заново.");
-                return;
-            }
+        // 🔥 МЫНА ЖЕР ЕҢ МАҢЫЗДЫСЫ:
+        // 1. Google (auth.currentUser) немесе 2. Телеграм (temp_tg_user) дерегін аламыз
+        const tgUser = JSON.parse(localStorage.getItem('temp_tg_user'));
+        const user = auth.currentUser || tgUser;
 
-            const name = document.getElementById('reg-name').value;
-            const email = document.getElementById('reg-email').value;
-            const phone = document.getElementById('reg-phone').value;
+        if (!user) {
+            alert("Ошибка сеанса. Пожалуйста, войдите заново.");
+            return;
+        }
+
+        const name = document.getElementById('reg-name').value;
+        const email = document.getElementById('reg-email').value;
+        const phone = document.getElementById('reg-phone').value;
+        
+        const submitBtn = regForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = "Сохранение...";
+        submitBtn.disabled = true;
+
+        try {
+            // Егер tgUser (Телеграм) болса, uid-і tg_id түрінде болады
+            const uid = user.uid || tgUser.uid; 
+            const userRef = doc(db, "users", uid);
             
-            // Батырманы екі рет басып қоймас үшін оны бұғаттаймыз
-            const submitBtn = regForm.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
-            submitBtn.innerText = "Сохранение...";
-            submitBtn.disabled = true;
-
-            try {
-                const userRef = doc(db, "users", user.uid);
-                // Деректерді Firestore базасына жазу
-                await setDoc(userRef, {
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    photoURL: user.photoURL || "",
-                    createdAt: new Date(),
-                    isSubscriber: false
-                });
-                
-                // Деректер базаға СӘТТІ жазылған соң ғана профильге бағыттайды
-                window.location.href = "profile.html";
-            } catch (error) {
-                console.error("Дерекқор қатесі:", error);
-                alert("Ошибка сохранения! Проверьте правила (Rules) в Firebase Firestore.");
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
-        });
-      }
+            await setDoc(userRef, {
+                name: name,
+                email: email,
+                phone: phone,
+                photoURL: user.photoURL || user.photoURL || "",
+                createdAt: new Date(),
+                isSubscriber: false,
+                isVerified: false
+            });
+            
+            // Жұмыс біткен соң уақытша деректі тазалаймыз
+            localStorage.removeItem('temp_tg_user');
+            
+            window.location.href = "profile.html";
+        } catch (error) {
+            console.error("Дерекқор қатесі:", error);
+            alert("Ошибка сохранения! Проверьте правила Firebase Firestore.");
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+}
     </script>
     
 <script src="./js/main.js"></script>
