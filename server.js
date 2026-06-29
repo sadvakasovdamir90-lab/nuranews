@@ -48,12 +48,44 @@ app.get('/api/ads/author/:name', (req, res) => {
     res.json(authorAds);
 });
 
+const fs = require('fs');
+
+// Бұл функция bad_words.json файлын оқиды
+function getBadWords() {
+    try {
+        const data = fs.readFileSync('bad_words.json', 'utf8');
+        return JSON.parse(data).words;
+    } catch (e) {
+        return []; // Файл жоқ болса, бос тізім қайтарады
+    }
+}
+
+// Бұл функция сөздердің ішінде жаман сөз бар-жоғын тексереді
+function containsBadWords(text) {
+    if (!text) return false;
+    const badWords = getBadWords();
+    const lowerText = text.toLowerCase();
+    // includes() осы жерде қолданылады - ол жай ғана сөздің ішінде "боқ" деген бар ма деп тексереді
+    return badWords.some(word => lowerText.includes(word.toLowerCase()));
+}
+
 // 4. 📝 ЖАҢА ЖАРНАМА ҚОСУ
 app.post('/api/ads', (req, res) => {
+    // 1. Барлық деректі бірден аламыз
+    const { category, title, description, price, author, avatar, images, isVerified } = req.body;
+
+    // 2. 🔥 МОДЕРАЦИЯ (Осы жерде тексеріледі)
+    // Егер title немесе description ішінде тыйым салынған сөз болса
+    if (containsBadWords(title) || containsBadWords(description)) {
+        console.log("🚫 Бот жарнаманы бұғаттады: әдепсіз мәтін табылды.");
+        return res.status(400).json({ 
+            success: false, 
+            message: "Жарнамаңызда әдепсіз мәтіндер бар (такие слова не допускаются)." 
+        });
+    }
+    
+    // 3. Егер бәрі таза болса, ғана сақтаймыз
     try {
-        // 🔥 isVerified АЙНЫМАЛЫСЫ ҚОСЫЛДЫ
-        const { category, title, description, price, author, avatar, images, isVerified } = req.body;
-        
         const newAd = {
             id: Date.now(),
             type: category === 'Новости' ? 'news' : 'ad',
@@ -63,7 +95,7 @@ app.post('/api/ads', (req, res) => {
             description: description,
             author: author || 'Аноним',
             avatar: avatar || null,
-            isVerified: isVerified || false, // 🔥 ГАЛОЧКА СТАТУСЫН БАЗАҒА САҚТАЙМЫЗ
+            isVerified: isVerified || false,
             price: price ? price + ' ₸' : 'Договорная',
             images: images || []
         };
@@ -71,7 +103,6 @@ app.post('/api/ads', (req, res) => {
         feedData.unshift(newAd); 
         res.json({ success: true });
     } catch (error) {
-        console.error("Бэкендте жарнама қосу қатесі:", error);
         res.status(500).json({ success: false });
     }
 });

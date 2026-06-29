@@ -121,6 +121,17 @@
                     </div>
 
                     <div>
+    <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Категория</label>
+    <select id="input-category" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white transition-colors" required>
+        <option value="Объявления">Объявление</option>
+        <option value="Авто">🚗 Авто и Такси</option>
+        <option value="Сельхоз">🐄 Скот и Сельхоз</option>
+        <option value="Недвижимость">🏠 Недвижимость</option>
+        <option value="Услуги">🛠 Услуги</option>
+    </select>
+</div>
+
+                    <div>
                         <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Заголовок (Тақырыбы)</label>
                         <input type="text" id="input-title" required placeholder="Краткое название вашего товара или услуги..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white transition-colors">
                     </div>
@@ -472,41 +483,54 @@
           });
       }
 
-      const adForm = document.getElementById('ad-form');
-      if (adForm) {
-          adForm.addEventListener('submit', async (e) => {
-              e.preventDefault();
-              const isAnonymous = document.getElementById('input-anonymous').checked;
-              const submitBtn = adForm.querySelector('button[type="submit"]');
-              const originalBtnHtml = submitBtn.innerHTML; 
-              submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Публикация...`; submitBtn.disabled = true;
+     const adForm = document.getElementById('ad-form');
+if (adForm) {
+    adForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const isAnonymous = document.getElementById('input-anonymous').checked;
+        const category = document.getElementById('input-category').value; // Жаңа категория
+        
+        const submitBtn = adForm.querySelector('button[type="submit"]');
+        const originalBtnHtml = submitBtn.innerHTML; 
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Публикация...`; 
+        submitBtn.disabled = true;
 
-              try {
-                  const response = await fetch('/api/ads', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                          category: "Объявления",
-                          title: document.getElementById('input-title').value,
-                          description: document.getElementById('input-desc').value,
-                          price: document.getElementById('input-price').value || "Договорная",
-                          author: isAnonymous ? "Аноним" : document.getElementById('profile-name').innerText,
-                          avatar: isAnonymous ? "" : document.getElementById('profile-avatar').src,
-                          isVerified: isAnonymous ? false : currentUserIsVerified, // 🔥 СЕРВЕРГЕ ГАЛОЧКАНЫ ЖІБЕРЕДІ
-                          images: selectedAdPhotos 
-                      })
-                  });
-                  const result = await response.json();
-                  if (result.success) {
-                      window.showToast('success', 'Отлично! Объявление опубликовано.');
-                      adForm.reset(); document.getElementById('photos-preview').innerHTML = ''; selectedAdPhotos = [];
-                      const adsCountEl = document.getElementById('ads-count');
-                      if (adsCountEl) adsCountEl.innerText = parseInt(adsCountEl.innerText) + 1;
-                  } else { window.showToast('error', 'Ошибка при публикации.'); }
-              } catch (error) { window.showToast('error', 'Слишком большой файл или ошибка сервера.'); } 
-              finally { submitBtn.innerHTML = originalBtnHtml; submitBtn.disabled = false; }
-          });
-      }
+        try {
+            const response = await fetch('/api/ads', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    category: category, // Таңдалған категория
+                    title: document.getElementById('input-title').value,
+                    description: document.getElementById('input-desc').value,
+                    price: document.getElementById('input-price').value || "Договорная",
+                    author: isAnonymous ? "Аноним" : document.getElementById('profile-name').innerText,
+                    avatar: isAnonymous ? "" : document.getElementById('profile-avatar').src,
+                    isVerified: isAnonymous ? false : currentUserIsVerified,
+                    images: selectedAdPhotos,
+                    status: 'pending' // 🔥 Әкімшілік тексеруі үшін статус қосылды
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success) {
+                window.showToast('success', 'Отлично! Жарнама модерацияға жіберілді.');
+                adForm.reset(); 
+                document.getElementById('photos-preview').innerHTML = ''; 
+                selectedAdPhotos = [];
+                const adsCountEl = document.getElementById('ads-count');
+                if (adsCountEl) adsCountEl.innerText = parseInt(adsCountEl.innerText) + 1;
+            } else { 
+                window.showToast('error', 'Ошибка при публикации.'); 
+            }
+        } catch (error) { 
+            window.showToast('error', 'Ошибка сервера.'); 
+        } finally { 
+            submitBtn.innerHTML = originalBtnHtml; 
+            submitBtn.disabled = false; 
+        }
+    });
+}
     </script>
 </body>
 </html>
