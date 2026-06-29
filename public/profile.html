@@ -304,32 +304,44 @@
       let cropper = null; 
       let currentUserIsVerified = false; // 🔥 ЖАҢАЛЫҚ: Базадан галочка статусын сақтайды
 
-      const btnLogout = document.getElementById('btn-logout');
+     const btnLogout = document.getElementById('btn-logout');
       if (btnLogout) {
           btnLogout.addEventListener('click', async () => {
-              try { await signOut(auth); window.location.href = "index.html"; } catch (error) {}
+              try { 
+                  await signOut(auth); 
+                  sessionStorage.removeItem('tg_user'); // Телеграмнан да шығу
+                  window.location.href = "index.html"; 
+              } catch (error) {}
           });
       }
 
+      // 🔥 ТЕЛЕГРАМ СЕССИЯСЫН ОҚУ
+      const tgSessionUser = JSON.parse(sessionStorage.getItem('tg_user'));
+
       onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          currentUserDocId = user.uid;
-          let currentUserName = user.displayName || "Қолданушы";
-          let currentEmail = user.email || "";
-          let currentAvatarUrl = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentUserName);
+        // Егер Google (user) немесе Telegram (tgSessionUser) болса, профильді ашамыз
+        if (user || tgSessionUser) {
+          
+          currentUserDocId = user ? user.uid : 'tg_' + tgSessionUser.id;
+          
+          let currentUserName = user ? (user.displayName || "Қолданушы") : tgSessionUser.first_name;
+          let currentEmail = user ? (user.email || "") : (tgSessionUser.id + "@telegram.user");
+          let currentAvatarUrl = user ? (user.photoURL || "") : (tgSessionUser.photo_url || "https://ui-avatars.com/api/?name=" + currentUserName);
           let currentPhone = "";
 
           try {
-              const userRef = doc(db, "users", user.uid);
+              const userRef = doc(db, "users", currentUserDocId);
               const userSnap = await getDoc(userRef);
               if (userSnap.exists()) {
                   const userData = userSnap.data();
                   currentUserName = userData.name || currentUserName;
                   currentPhone = userData.phone || "";
                   currentAvatarUrl = userData.photoURL || currentAvatarUrl;
-                  currentUserIsVerified = userData.isVerified || false; // 🔥 БАЗАДАН ОҚИМЫЗ
+                  currentUserIsVerified = userData.isVerified || false; 
               }
-          } catch (error) {}
+          } catch (error) {
+              console.log("Firebase оқу қатесі:", error);
+          }
 
           document.getElementById('profile-name').innerText = currentUserName;
           document.getElementById('profile-email').innerText = currentEmail;
@@ -346,6 +358,7 @@
           if(noSubState) noSubState.classList.add('hidden');
           if(adFormContainer) adFormContainer.classList.remove('hidden');
         } else {
+          // Екеуі де жоқ болса, басты бетке шығарып тастаймыз
           window.location.href = "index.html";
         }
       });
