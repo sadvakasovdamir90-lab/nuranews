@@ -264,31 +264,41 @@
 
     <script>
     // ТЕЛЕГРАМНАН КЕЛГЕН ДЕРЕКТЕРДІ ҚАБЫЛДАУ
-    window.onTelegramAuth = async function(user) {
-        console.log("Телеграмнан келген дерек:", user);
+   window.onTelegramAuth = async function(user) {
+    console.log("Телеграмнан келген дерек:", user);
+    
+    // 1. Егер аты сан болса немесе бос болса, 'Пользователь' деп береміз
+    if (!user.first_name || /^\d+$/.test(user.first_name)) {
+        user.first_name = "Житель";
+    }
+
+    try {
+        const response = await fetch('/api/auth/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(user)
+        });
         
-        try {
-            // Деректерді өзіміздің серверге тексеруге жібереміз
-            const response = await fetch('/api/auth/telegram', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(user)
-            });
+        const result = await response.json();
+        
+        if (result.success) {
+            sessionStorage.setItem('tg_user', JSON.stringify(result.user));
             
-            const result = await response.json();
-            
-            if (result.success) {
-                // Сервер растаса, профильге кіргіземіз
-                alert("Сәтті кірдіңіз, " + user.first_name + "!");
-                sessionStorage.setItem('tg_user', JSON.stringify(result.user));
-                window.location.href = "profile.html"; 
+            // 2. АТТЫ ТЕКСЕРУ: Егер ат әлі де стандартты болса, регистрацияны аяқтау терезесін ашамыз
+            if (user.first_name === "Житель") {
+                document.getElementById('modal-auth').classList.add('hidden');
+                document.getElementById('modal-complete-profile').classList.remove('hidden');
+                document.getElementById('reg-name').value = ""; // Пайдаланушы өз атын жазуы үшін
             } else {
-                alert("Қате: " + result.message);
+                window.location.href = "profile.html";
             }
-        } catch (error) {
-            alert("Сервермен байланыс үзілді.");
+        } else {
+            alert("Қате: " + result.message);
         }
-    };
+    } catch (error) {
+        alert("Сервермен байланыс үзілді.");
+    }
+};
 </script>
 
 
