@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NuraNews | Premium Media Portal</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        nura: { 500: '#2563eb', 600: '#1d4ed8', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-slate-50 dark:bg-nura-950 text-slate-800 dark:text-slate-200 transition-colors duration-300 relative">
+
+    <header class="sticky top-0 z-[50] bg-white/90 dark:bg-nura-900/90 glass-effect border-b border-slate-200 dark:border-slate-800 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4 cursor-pointer">
+                <div class="w-12 h-12 rounded-xl bg-nura-600 flex items-center justify-center text-white shadow-md">
+                    <i class="fas fa-layer-group text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-[800] tracking-tight uppercase leading-none text-slate-900 dark:text-white">
+                        NURA<span class="text-nura-600">NEWS</span>
+                    </h1>
+                    <p class="text-[10px] font-[700] text-slate-500 uppercase tracking-[0.2em] mt-1">Официальный портал</p>
+                </div>
+            </div>
+
+            <div class="hidden md:flex flex-1 max-w-xl mx-8 relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" placeholder="Поиск по порталу..." class="w-full bg-slate-100 dark:bg-slate-800/50 border border-transparent focus:border-nura-500 rounded-xl py-3 pl-12 pr-4 outline-none text-sm font-medium transition-all dark:text-white">
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button id="theme-toggle" class="w-11 h-11 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+                <button id="btn-login-header" class="px-6 py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-xs font-bold uppercase tracking-wider hover:scale-105 transition-transform shadow-md">
+                    Войти
+                </button>
+            </div>
+        </div>
+    </header>
+
+    
+
+   <main class="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+        
+        <!-- ⬅️ СОЛ ЖАҚ БАҒАН -->
+        <div class="lg:col-span-8 space-y-6">
+            
+            <!-- Маркетинг Баннер -->
+          <div class="bg-gradient-to-r from-nura-900 to-slate-800 dark:from-nura-950 dark:to-nura-900 rounded-2xl p-8 shadow-xl relative overflow-hidden flex items-center justify-between mb-8">
+    <div class="relative z-10 max-w-lg">
+        <span class="px-3 py-1 bg-white/20 text-white rounded-md text-[10px] font-bold uppercase tracking-widest backdrop-blur-md mb-4 inline-block">Премиум охват</span>
+        <h2 class="text-white text-3xl font-[800] leading-tight mb-3">Заявите о себе на весь район!</h2>
+        <p class="text-slate-300 text-sm mb-6 leading-relaxed">Нужно больше клиентов или хотите срочно продать товар? Одно нажатие — и ваше объявление увидят тысячи жителей на портале, в Telegram и Instagram.</p>
+        <button id="btn-post-ad" onclick="document.getElementById('modal-auth').classList.remove('hidden'); setTimeout(() => document.getElementById('modal-auth-content').classList.remove('scale-95', 'opacity-0'), 10);" class="px-8 py-4 bg-nura-500 hover:bg-nura-600 text-white rounded-xl font-bold text-xs uppercase tracking-widest shadow-lg transition-all flex items-center gap-3 active:scale-95">
+            <i class="fas fa-bullhorn"></i> Выбрать тариф
+        </button>
+    </div>
+    <div class="hidden md:block relative z-10 text-white/5 text-9xl transform rotate-[-15deg]">
+        <i class="fas fa-rocket"></i>
+    </div>
+</div>
+
+            <!-- Санаттар мәзірі -->
+            <div class="flex gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+                <button class="px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider bg-nura-600 text-white shadow-md">Все</button>
+                <button class="px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">Новости</button>
+                <button class="px-6 py-2 rounded-lg text-xs font-bold uppercase tracking-wider text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors">Объявления</button>
+            </div>
+
+         <div id="feed-container" class="flex flex-col gap-6">
+                
+                <div class="flex justify-center items-center py-10 text-slate-400">
+                    <i class="fas fa-spinner fa-spin text-3xl"></i>
+                    <span class="ml-3 text-xs font-bold uppercase tracking-widest">Загрузка данных...</span>
+                </div>
+
+            </div>
+        </div>
+        
+        <aside class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+
+        <!-- ➡️ ОҢ ЖАҚ БАҒАН (Шынайы Инфо) -->
+        <aside class="lg:col-span-4 space-y-6">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                <h4 class="text-xs font-bold uppercase tracking-widest text-slate-400 mb-5 flex items-center gap-2">
+                    <i class="fas fa-chart-line text-slate-300"></i> Текущие данные
+                </h4>
+                
+                <!-- 💰 Курс валют (USD, EUR, RUB) -->
+                <div class="grid grid-cols-3 gap-2 mb-5 border-b border-slate-100 dark:border-slate-800 pb-5">
+                    <div class="text-center">
+                        <span id="rate-usd" class="block text-xl font-[800] text-slate-900 dark:text-white leading-tight animate-pulse">...</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">USD</span>
+                    </div>
+                    <div class="text-center border-l border-slate-100 dark:border-slate-800">
+                        <span id="rate-eur" class="block text-xl font-[800] text-slate-900 dark:text-white leading-tight animate-pulse">...</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">EUR</span>
+                    </div>
+                    <div class="text-center border-l border-slate-100 dark:border-slate-800">
+                        <span id="rate-rub" class="block text-xl font-[800] text-slate-900 dark:text-white leading-tight animate-pulse">...</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase mt-1">RUB</span>
+                    </div>
+                </div>
+
+                <!-- 🌤️ Ауа райы (Авто-локация) -->
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center">
+                            <i id="weather-icon" class="fas fa-spinner fa-spin text-lg text-slate-400"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span id="user-location" class="text-[11px] font-[800] text-nura-600 dark:text-nura-400 uppercase tracking-wider">Поиск...</span>
+                            <span class="text-[9px] font-bold text-slate-400 uppercase mt-0.5">Ваше местоположение</span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <span id="real-temp" class="text-3xl font-[800] text-slate-900 dark:text-white leading-none">...</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+  <!-- 1. АВТОРИЗАЦИЯ МОДАЛЫ -->
+    <div id="modal-auth" class="fixed inset-0 z-[200] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm modal-overlay cursor-pointer"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-auth-content">
+            <button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 transition-colors btn-close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-nura-50 dark:bg-nura-900/30 rounded-2xl mx-auto flex items-center justify-center text-nura-600 mb-4">
+                    <i class="fas fa-user-lock text-2xl"></i>
+                </div>
+                <!-- Осы жерге ID қосылды, мәтінді JS басқарады -->
+                <h3 id="auth-modal-title" class="text-2xl font-[800] text-slate-900 dark:text-white">Войдите в систему</h3>
+                <p id="auth-modal-desc" class="text-sm text-slate-500 mt-2">Пожалуйста, авторизуйтесь.</p>
+            </div>
+            
+            <div class="space-y-3">
+    <div class="flex justify-center items-center w-full py-2 min-h-[56px] bg-[#0088cc]/5 hover:bg-[#0088cc]/10 rounded-xl border border-[#0088cc]/20 transition-colors relative z-50">
+        <script async src="https://telegram.org/js/telegram-widget.js?22" 
+                data-telegram-login="NuraNewsBot" 
+                data-size="large" 
+                data-radius="10"
+                data-onauth="onTelegramAuth(user)" 
+                data-request-access="write">
+        </script>
+    </div>
+
+    <button id="btn-google-login" class="w-full py-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-xl font-bold flex items-center justify-center gap-3 transition-colors shadow-sm">
+        <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" class="w-6 h-6">
+        Войти через Google
+    </button>
+</div>
+
+    <!-- 2. ФОРМА ЗАВЕРШЕНИЯ РЕГИСТРАЦИИ (Жаңа қолданушылар үшін) -->
+    <div id="modal-complete-profile" class="fixed inset-0 z-[300] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-8" id="modal-complete-content">
+            <h3 class="text-2xl font-[800] text-slate-900 dark:text-white mb-2">Последний шаг!</h3>
+            <p class="text-sm text-slate-500 mb-6">Укажите ваш номер телефона для завершения регистрации.</p>
+            
+            <form id="form-complete-profile" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Ваше имя (ФИО)</label>
+                    <input type="text" id="reg-name" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Почта</label>
+                    <input type="email" id="reg-email" disabled class="w-full bg-slate-200 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-500 cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Номер телефона</label>
+                    <input type="tel" id="reg-phone" placeholder="+7 777 000 00 00" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white">
+                </div>
+                
+                <!-- Батырма өзгертілді -->
+                <button type="submit" class="w-full mt-4 py-4 bg-nura-600 hover:bg-nura-700 text-white rounded-xl font-bold uppercase tracking-widest shadow-md transition-colors active:scale-95">
+                    Завершить регистрацию
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-tariff" class="fixed inset-0 z-[200] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm modal-overlay cursor-pointer"></div>
+        
+        <!-- Терезенің енін max-w-2xl-ден max-w-4xl-ге үлкейттік (3 баған сыю үшін) -->
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-tariff-content">
+            <button class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 transition-colors btn-close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-[800] text-slate-900 dark:text-white">Выберите тариф</h3>
+                <p class="text-sm text-slate-500 mt-2">Размещение на сайте, в Instagram и Telegram-канале.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <!-- 1. НЕДЕЛЬНЫЙ ТАРИФ -->
+                <div class="border-2 border-slate-100 dark:border-slate-800 rounded-2xl p-5 hover:border-nura-500 cursor-pointer transition-colors group">
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-nura-600">1 Неделя (7 дней)</span>
+                        <i class="far fa-circle text-slate-300 group-hover:text-nura-600"></i>
+                    </div>
+                    <div class="text-2xl font-[800] dark:text-white mb-1">2 450 ₸</div>
+                    <div class="text-[10px] font-bold text-slate-400 mb-3">~ 350 ₸ в день</div>
+                    <p class="text-xs text-slate-500 leading-relaxed">Базовый тариф. Идеально для частных лиц, желающих срочно что-то продать.</p>
+                </div>
+
+                <!-- 2. ЕЖЕМЕСЯЧНЫЙ ТАРИФ (ХИТ) -->
+                <div class="border-2 border-nura-500 bg-nura-50 dark:bg-nura-900/20 rounded-2xl p-5 cursor-pointer relative overflow-hidden transform scale-105 shadow-lg">
+                    <div class="absolute top-0 right-0 bg-nura-500 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-lg">Хит</div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-nura-600 dark:text-nura-400">1 Месяц (30 дней)</span>
+                        <i class="fas fa-check-circle text-nura-500"></i>
+                    </div>
+                    <div class="text-2xl font-[800] dark:text-white mb-1">5 590 ₸</div>
+                    <div class="text-[10px] font-bold text-nura-500 mb-3">~ 186 ₸ в день (Выгода 45%)</div>
+                    <p class="text-xs text-slate-500 leading-relaxed">Самый популярный тариф. Выгодное решение для таксистов и магазинов.</p>
+                </div>
+
+                <!-- 3. ГОДОВОЙ ТАРИФ (БИЗНЕС) -->
+                <div class="border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-5 hover:border-amber-500 cursor-pointer transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-amber-400 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-lg">PRO</div>
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">1 Год (365 дней)</span>
+                        <i class="far fa-star text-amber-400 group-hover:text-amber-500"></i>
+                    </div>
+                    <div class="text-2xl font-[800] dark:text-white mb-1">44 990 ₸</div>
+                    <div class="text-[10px] font-bold text-amber-500 mb-3">4 месяца в ПОДАРОК! (~123 ₸/день)</div>
+                    <p class="text-xs text-slate-500 leading-relaxed">Бизнес тариф. Оптимально для постоянных предпринимателей и крестьянских хозяйств.</p>
+                </div>
+            </div>
+            
+            <button class="w-full mt-8 py-4 bg-nura-600 hover:bg-nura-700 text-white rounded-xl font-bold uppercase tracking-widest shadow-md transition-colors active:scale-95">
+                Оплатить и продолжить
+            </button>
+        </div>
+    </div>
+
+
+    <script>
+    // ТЕЛЕГРАМНАН КЕЛГЕН ДЕРЕКТЕРДІ ҚАБЫЛДАУ
+    window.onTelegramAuth = async function(user) {
+        console.log("Телеграмнан келген дерек:", user);
+        
+        try {
+            // Деректерді өзіміздің серверге тексеруге жібереміз
+            const response = await fetch('/api/auth/telegram', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(user)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Сервер растаса, профильге кіргіземіз
+                alert("Сәтті кірдіңіз, " + user.first_name + "!");
+                sessionStorage.setItem('tg_user', JSON.stringify(result.user));
+                window.location.href = "profile.html"; 
+            } else {
+                alert("Қате: " + result.message);
+            }
+        } catch (error) {
+            alert("Сервермен байланыс үзілді.");
+        }
+    };
+</script>
+
+
+  <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, getAdditionalUserInfo } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCT2EKhuT9AcMTEMpEAXEtqcFiGJIJTPtQ",
+        authDomain: "nuranews-2177c.firebaseapp.com",
+        projectId: "nuranews-2177c",
+        storageBucket: "nuranews-2177c.firebasestorage.app",
+        messagingSenderId: "960132468347",
+        appId: "1:960132468347:web:0fdc35cda6b7ae1a1d5cde"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const provider = new GoogleAuthProvider();
+
+      // 1. СЕАНСТЫ БАҚЫЛАУ
+      onAuthStateChanged(auth, (user) => {
+          let btnLogin = document.getElementById('btn-login-header');
+          let btnPostAd = document.getElementById('btn-post-ad');
+
+          if (user) {
+              if (btnLogin && btnLogin.parentNode) {
+                  let newBtnLogin = btnLogin.cloneNode(true);
+                  btnLogin.parentNode.replaceChild(newBtnLogin, btnLogin);
+                  newBtnLogin.id = 'btn-login-header-logged';
+                  newBtnLogin.innerHTML = '<i class="fas fa-user-circle text-lg mr-2"></i> Кабинет';
+                  newBtnLogin.className = "px-6 py-3 bg-nura-100 dark:bg-nura-900/30 text-nura-600 dark:text-nura-400 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-nura-200 transition-colors shadow-sm flex items-center cursor-pointer";
+                  newBtnLogin.addEventListener('click', () => window.location.href = "profile.html");
+              }
+
+              if (btnPostAd && btnPostAd.parentNode) {
+                  let newBtnPostAd = btnPostAd.cloneNode(true);
+                  btnPostAd.parentNode.replaceChild(newBtnPostAd, btnPostAd);
+                  newBtnPostAd.id = 'btn-post-ad-logged';
+                  newBtnPostAd.addEventListener('click', () => window.location.href = "profile.html?tariff=true");
+              }
+          }
+      });
+
+      // 2. GOOGLE АРҚЫЛЫ КІРУ
+      const googleBtn = document.getElementById('btn-google-login');
+      if (googleBtn) {
+        googleBtn.addEventListener('click', async () => {
+          try {
+            const result = await signInWithPopup(auth, provider);
+            const details = getAdditionalUserInfo(result);
+
+            if (details.isNewUser) {
+                // Жаңа қолданушы үшін терезелерді ауыстыру
+                document.getElementById('modal-auth').classList.add('hidden');
+                document.getElementById('reg-name').value = result.user.displayName || "";
+                document.getElementById('reg-email').value = result.user.email || "";
+                document.getElementById('modal-complete-profile').classList.remove('hidden');
+            } else {
+                // Ескі қолданушы тікелей профильге өтеді
+                window.location.href = "profile.html";
+            }
+          } catch (error) {
+            console.error("Авторизация қатесі:", error);
+          }
+        });
+      }
+
+      // 3. ФОРМАНЫ САҚТАУ ЖӘНЕ ПРОФИЛЬГЕ ӨТУ (Жаңартылған, қатесіз логика)
+      const regForm = document.getElementById('form-complete-profile');
+      if (regForm) {
+        regForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); // Беттің автоматты түрде жаңарып кетуін қатаң тоқтатады
+
+            // Уақытша жадыдан емес, нақты сеанстан аламыз
+            const user = auth.currentUser;
+            if (!user) {
+                alert("Ошибка сеанса. Пожалуйста, войдите заново.");
+                return;
+            }
+
+            const name = document.getElementById('reg-name').value;
+            const email = document.getElementById('reg-email').value;
+            const phone = document.getElementById('reg-phone').value;
+            
+            // Батырманы екі рет басып қоймас үшін оны бұғаттаймыз
+            const submitBtn = regForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.innerText = "Сохранение...";
+            submitBtn.disabled = true;
+
+            try {
+                const userRef = doc(db, "users", user.uid);
+                // Деректерді Firestore базасына жазу
+                await setDoc(userRef, {
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    photoURL: user.photoURL || "",
+                    createdAt: new Date(),
+                    isSubscriber: false
+                });
+                
+                // Деректер базаға СӘТТІ жазылған соң ғана профильге бағыттайды
+                window.location.href = "profile.html";
+            } catch (error) {
+                console.error("Дерекқор қатесі:", error);
+                alert("Ошибка сохранения! Проверьте правила (Rules) в Firebase Firestore.");
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+      }
+    </script>
+    
+<script src="./js/main.js"></script>
+
+   
+    
+</body>
+</html>

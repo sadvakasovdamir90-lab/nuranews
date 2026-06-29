@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мой кабинет | NuraNews</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/style.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        nura: { 500: '#2563eb', 600: '#1d4ed8', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-nura-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-[9999] flex flex-col gap-3"></div>
+
+    <header class="bg-white/90 dark:bg-nura-900/90 glass-effect border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div class="w-10 h-10 rounded-xl bg-nura-600 flex items-center justify-center text-white shadow-md">
+                    <i class="fas fa-arrow-left"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-[800] tracking-tight uppercase leading-none text-slate-900 dark:text-white">На главную</h1>
+                </div>
+            </a>
+            <div class="flex items-center gap-3">
+                <button id="btn-logout" class="px-5 py-2.5 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-2 shadow-sm active:scale-95">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <aside class="lg:col-span-4 space-y-4">
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center gap-4 mb-6 relative group cursor-pointer w-max" onclick="openEditProfile()">
+                    <img id="profile-avatar" src="https://ui-avatars.com/api/?name=Загрузка" onerror="this.src='https://ui-avatars.com/api/?name=Nura+News'" class="w-16 h-16 rounded-full object-cover shadow-md border-2 border-nura-100">
+                    
+                    <div>
+                        <h2 id="profile-name" class="text-lg font-[800] dark:text-white leading-tight">Загрузка...</h2>
+                        <p id="profile-email" class="text-xs text-slate-500 mt-1">загрузка...</p>
+                        <p id="profile-phone" class="text-[10px] font-bold text-nura-600 mt-1">+7 (---) --- -- --</p>
+                        <p id="profile-status" class="text-[10px] font-bold text-nura-500 mt-1">Статус: Проверка...</p>
+                    </div>
+                </div>
+
+                <button onclick="openEditProfile()" class="w-full py-3 mb-4 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                    <i class="fas fa-pen text-[10px]"></i> Редактировать профиль
+                </button>
+
+                <a href="statistics.html" class="w-full py-3 mb-4 bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/20 dark:hover:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-sm active:scale-95">
+                    <i class="fas fa-chart-pie text-[11px]"></i> Статистика портала
+                </a>
+
+                <div class="border-t border-slate-100 dark:border-slate-800 pt-5">
+                    <h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3">Ваш текущий тариф</h4>
+                    <div class="bg-nura-50 dark:bg-nura-900/30 border border-nura-200 dark:border-nura-800 rounded-xl p-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span id="tariff-name-display" class="text-sm font-bold text-nura-600 dark:text-nura-400">Ежемесячный (Хит)</span>
+                            <i id="tariff-icon-display" class="fas fa-check-circle text-nura-500"></i>
+                        </div>
+                        <p id="tariff-date-display" class="text-[10px] text-slate-500 mb-3">Действует до: 27 Июля 2026</p>
+                        <button onclick="openTariffModal()" class="w-full py-2 bg-white dark:bg-slate-800 text-nura-600 dark:text-white border border-slate-200 dark:border-slate-700 rounded-lg text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                            Продлить / Сменить тариф
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mt-5 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl">
+                    <span class="text-xs font-bold text-slate-500">Всего объявлений:</span>
+                    <span id="ads-count" class="text-lg font-[800] text-slate-900 dark:text-white">0</span>
+                </div>
+            </div>
+        </aside>
+        
+        <div class="lg:col-span-8 space-y-8">
+            <div id="no-subscription-state" class="hidden bg-white dark:bg-slate-900 rounded-3xl p-10 border border-slate-200 dark:border-slate-800 shadow-sm text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[500px]">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-nura-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="w-24 h-24 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-slate-400 mb-6 shadow-inner relative z-10">
+                    <i class="fas fa-lock text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-[800] text-slate-900 dark:text-white mb-3 relative z-10">Доступ закрыт</h3>
+                <p class="text-slate-500 max-w-md mx-auto mb-8 relative z-10 leading-relaxed">
+                    Чтобы публиковать новости и объявления на портале NuraNews, необходимо активировать один из наших тарифов. 
+                </p>
+                <button onclick="openTariffModal()" class="px-8 py-4 bg-nura-600 hover:bg-nura-700 text-white rounded-xl font-bold uppercase tracking-widest shadow-lg shadow-nura-600/30 transition-all active:scale-95 flex items-center justify-center gap-3 relative z-10">
+                    <i class="fas fa-star"></i> Выбрать тариф
+                </button>
+            </div>
+
+            <div id="ad-form-container" class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+                <div class="border-b border-slate-100 dark:border-slate-800 pb-4">
+                    <h3 class="text-2xl font-[800] text-slate-900 dark:text-white">Создать объявление</h3>
+                    <p class="text-xs text-slate-500 mt-1">Добавьте объявление, которое моментально увидят тысячи жителей района.</p>
+                </div>
+
+                <form id="ad-form" class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Цена (₸)</label>
+                        <input type="number" id="input-price" placeholder="Например: 5000 (оставьте пустым, если договорная)" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Заголовок (Тақырыбы)</label>
+                        <input type="text" id="input-title" required placeholder="Краткое название вашего товара или услуги..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white transition-colors">
+                    </div>
+
+                    <div class="relative">
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400">Текст объявления (Сипаттамасы)</label>
+                            <button type="button" id="btn-ai-enhance" class="text-nura-600 dark:text-nura-400 text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5 hover:opacity-80 active:scale-95 transition-all outline-none">
+                                <i class="fas fa-magic text-amber-500"></i> ✨ Улучшить с ИИ
+                            </button>
+                        </div>
+                        <textarea id="input-desc" required rows="5" placeholder="Опишите подробно ваш товар, укажите состояние, контакты и условия продажи..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white leading-relaxed transition-colors"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-2">Фотографии (До 5 штук)</label>
+                        
+                        <div id="drop-zone" class="relative w-full border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-2xl p-8 flex flex-col items-center justify-center text-center hover:border-nura-500 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all cursor-pointer group">
+                            <input type="file" id="input-photos" accept="image/*" multiple class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="w-14 h-14 bg-white dark:bg-slate-800 text-nura-500 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:scale-110 transition-transform shadow-sm border border-slate-100 dark:border-slate-700">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h4 class="text-sm font-bold text-slate-700 dark:text-slate-200">Нажмите или перетащите фото сюда</h4>
+                            <p class="text-xs text-slate-400 mt-1">PNG, JPG, JPEG</p>
+                        </div>
+                        <div id="photos-preview" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4 mt-4 empty:hidden"></div>
+                    </div>
+
+                    <!-- 🕵️‍♂️ АНОНИМДІ ЖАРИЯЛАУ ҚОСҚЫШЫ -->
+                    <div class="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl transition-colors">
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-700 dark:text-slate-200">Опубликовать анонимно</h4>
+                            <p class="text-[10px] text-slate-500 mt-0.5">Ваше имя и фото профиля будут скрыты</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="input-anonymous" class="sr-only peer">
+                            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-nura-600"></div>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="w-full py-4 mt-2 bg-nura-600 hover:bg-nura-700 text-white rounded-xl font-bold uppercase tracking-widest shadow-lg shadow-nura-600/30 transition-all active:scale-95 flex items-center justify-center gap-2">
+                        <i class="fas fa-paper-plane text-xs"></i> Опубликовать объявление
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal-tariff" class="fixed inset-0 z-[200] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm modal-overlay cursor-pointer" onclick="closeTariffModal()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-4xl rounded-3xl shadow-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-tariff-content">
+            <button onclick="closeTariffModal()" class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-red-500 transition-colors btn-close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-[800] text-slate-900 dark:text-white">Выберите тариф</h3>
+                <p class="text-sm text-slate-500 mt-2">Размещение на сайте, в Instagram и Telegram-канале района.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="border-2 border-slate-100 dark:border-slate-800 rounded-2xl p-5 hover:border-nura-500 cursor-pointer transition-colors group">
+                    <div class="flex justify-between items-start mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-nura-600">1 Неделя (7 дней)</span><i class="far fa-circle text-slate-300 group-hover:text-nura-600"></i></div>
+                    <div class="text-2xl font-[800] dark:text-white mb-1">2 450 ₸</div>
+                </div>
+                <div class="border-2 border-nura-500 bg-nura-50 dark:bg-nura-900/20 rounded-2xl p-5 cursor-pointer relative overflow-hidden transform scale-105 shadow-lg">
+                    <div class="absolute top-0 right-0 bg-nura-500 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-lg">Хит</div>
+                    <div class="flex justify-between items-start mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-nura-600 dark:text-nura-400">1 Месяц (30 дней)</span><i class="fas fa-check-circle text-nura-500"></i></div>
+                    <div class="text-2xl font-[800] dark:text-white mb-1">5 590 ₸</div>
+                </div>
+                <div class="border-2 border-amber-400 bg-amber-50 dark:bg-amber-900/20 rounded-2xl p-5 hover:border-amber-500 cursor-pointer transition-colors relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 bg-amber-400 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-bl-lg">PRO</div>
+                    <div class="flex justify-between items-start mb-2"><span class="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">1 Год (365 дней)</span><i class="far fa-star text-amber-400 group-hover:text-amber-500"></i></div>
+                    <div class="text-2xl font-[800] dark:text-white mb-1">44 990 ₸</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-edit-profile" class="fixed inset-0 z-[200] hidden flex items-center justify-center">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm modal-overlay" onclick="closeEditProfile()"></div>
+        <div class="relative bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl shadow-2xl p-8 z-10 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-xl font-[800] dark:text-white mb-4">Редактировать профиль</h3>
+            <form id="form-edit-profile" class="space-y-4">
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">ФИО</label>
+                    <input type="text" id="edit-name" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white" required>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Телефон</label>
+                    <input type="text" id="edit-phone" placeholder="+7 777 000 00 00" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm outline-none focus:border-nura-500 dark:text-white">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Фото (Выбрать файл)</label>
+                    <input type="file" id="edit-file" accept="image/*" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-nura-500 dark:text-white">
+                    <input type="hidden" id="edit-photo">
+                </div>
+                <div id="crop-container" class="hidden border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-100 dark:bg-slate-950 p-2 max-h-64 flex items-center justify-center">
+                    <img id="crop-image" class="max-w-full max-h-56">
+                </div>
+                <button type="submit" class="w-full mt-4 py-4 bg-nura-600 hover:bg-nura-700 text-white rounded-xl font-bold uppercase tracking-widest shadow-md transition-colors active:scale-95">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 🔔 TOAST ХАБАРЛАМА ШЫҒАРАТЫН ФУНКЦИЯ
+        window.showToast = function(type, message) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            const isSuccess = type === 'success';
+            
+            toast.className = `flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl transform transition-all duration-300 translate-x-full ${
+                isSuccess ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            
+            toast.innerHTML = `
+                <i class="${isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'} text-2xl"></i>
+                <p class="text-sm font-bold tracking-wide">${message}</p>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Анимациямен шығару
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            
+            // 3 секундтан соң өшіру
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        };
+
+        const modalTariff = document.getElementById('modal-tariff');
+        const modalTariffContent = document.getElementById('modal-tariff-content');
+
+        function openTariffModal() {
+            if(modalTariff) {
+                modalTariff.classList.remove('hidden');
+                setTimeout(() => {
+                    modalTariffContent.classList.remove('scale-95', 'opacity-0');
+                    modalTariffContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+        }
+
+        function closeTariffModal() {
+            if(modalTariffContent) {
+                modalTariffContent.classList.remove('scale-100', 'opacity-100');
+                modalTariffContent.classList.add('scale-95', 'opacity-0');
+            }
+            setTimeout(() => {
+                if(modalTariff) modalTariff.classList.add('hidden');
+            }, 300);
+        }
+
+        function openEditProfile() { document.getElementById('modal-edit-profile').classList.remove('hidden'); }
+        function closeEditProfile() { document.getElementById('modal-edit-profile').classList.add('hidden'); }
+    </script>
+
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCT2EKhuT9AcMTEMpEAXEtqcFiGJIJTPtQ",
+        authDomain: "nuranews-2177c.firebaseapp.com",
+        projectId: "nuranews-2177c",
+        storageBucket: "nuranews-2177c.firebasestorage.app",
+        messagingSenderId: "960132468347",
+        appId: "1:960132468347:web:0fdc35cda6b7ae1a1d5cde"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+
+      let currentUserDocId = null; 
+      let cropper = null; 
+      let currentUserIsVerified = false; // 🔥 ЖАҢАЛЫҚ: Базадан галочка статусын сақтайды
+
+      const btnLogout = document.getElementById('btn-logout');
+      if (btnLogout) {
+          btnLogout.addEventListener('click', async () => {
+              try { await signOut(auth); window.location.href = "index.html"; } catch (error) {}
+          });
+      }
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUserDocId = user.uid;
+          let currentUserName = user.displayName || "Қолданушы";
+          let currentEmail = user.email || "";
+          let currentAvatarUrl = user.photoURL || "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentUserName);
+          let currentPhone = "";
+
+          try {
+              const userRef = doc(db, "users", user.uid);
+              const userSnap = await getDoc(userRef);
+              if (userSnap.exists()) {
+                  const userData = userSnap.data();
+                  currentUserName = userData.name || currentUserName;
+                  currentPhone = userData.phone || "";
+                  currentAvatarUrl = userData.photoURL || currentAvatarUrl;
+                  currentUserIsVerified = userData.isVerified || false; // 🔥 БАЗАДАН ОҚИМЫЗ
+              }
+          } catch (error) {}
+
+          document.getElementById('profile-name').innerText = currentUserName;
+          document.getElementById('profile-email').innerText = currentEmail;
+          document.getElementById('profile-phone').innerText = currentPhone || "Телефон не указан";
+          document.getElementById('profile-avatar').src = currentAvatarUrl;
+          
+          document.getElementById('profile-status').innerText = currentUserIsVerified ? "Статус: Верифицирован ✅" : "Статус: Подписка активна";
+          document.getElementById('edit-name').value = currentUserName;
+          document.getElementById('edit-phone').value = currentPhone;
+          document.getElementById('edit-photo').value = currentAvatarUrl;
+
+          const noSubState = document.getElementById('no-subscription-state');
+          const adFormContainer = document.getElementById('ad-form-container');
+          if(noSubState) noSubState.classList.add('hidden');
+          if(adFormContainer) adFormContainer.classList.remove('hidden');
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+
+      const fileInput = document.getElementById('edit-file');
+      if (fileInput) {
+          fileInput.addEventListener('change', function(e) {
+              const file = e.target.files[0];
+              if (file) {
+                  const reader = new FileReader();
+                  reader.onload = function(event) {
+                      const cropImage = document.getElementById('crop-image');
+                      cropImage.src = event.target.result;
+                      document.getElementById('crop-container').classList.remove('hidden');
+                      if (cropper) cropper.destroy();
+                      cropper = new Cropper(cropImage, { aspectRatio: 1, viewMode: 1, autoCropArea: 0.8, background: false });
+                  };
+                  reader.readAsDataURL(file);
+              }
+          });
+      }
+
+      let selectedAdPhotos = []; 
+      const inputPhotos = document.getElementById('input-photos');
+      const photosPreview = document.getElementById('photos-preview');
+      if (inputPhotos && photosPreview) {
+          inputPhotos.addEventListener('change', function(e) {
+              const filesArray = Array.from(this.files);
+              if (selectedAdPhotos.length + filesArray.length > 5) {
+                  window.showToast('error', 'Максимум 5 фотографий!'); return;
+              }
+              filesArray.forEach((file) => {
+                  const reader = new FileReader();
+                  reader.onload = function(event) {
+                      const img = new Image();
+                      img.onload = function() {
+                          const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+                          const MAX_WIDTH = 800; let width = img.width; let height = img.height;
+                          if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                          canvas.width = width; canvas.height = height; ctx.drawImage(img, 0, 0, width, height);
+                          selectedAdPhotos.push(canvas.toDataURL('image/jpeg', 0.7));
+                          renderPreviews();
+                      };
+                      img.src = event.target.result;
+                  };
+                  reader.readAsDataURL(file);
+              });
+              this.value = ''; 
+          });
+
+          function renderPreviews() {
+              photosPreview.innerHTML = '';
+              selectedAdPhotos.forEach((photoUrl, index) => {
+                  const previewCard = `
+                      <div class="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden shadow-sm">
+                          <img src="${photoUrl}" class="w-full h-full object-cover">
+                          <div class="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <button type="button" data-index="${index}" class="btn-delete-ad-photo w-10 h-10 bg-red-500 text-white rounded-full"><i class="fas fa-trash-alt"></i></button>
+                          </div>
+                      </div>`;
+                  photosPreview.insertAdjacentHTML('beforeend', previewCard);
+              });
+          }
+          photosPreview.addEventListener('click', function(e) {
+              const deleteBtn = e.target.closest('.btn-delete-ad-photo');
+              if (deleteBtn) { selectedAdPhotos.splice(parseInt(deleteBtn.getAttribute('data-index')), 1); renderPreviews(); }
+          });
+      }
+
+      const formEditProfile = document.getElementById('form-edit-profile');
+      if (formEditProfile) {
+          formEditProfile.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const newName = document.getElementById('edit-name').value;
+              const newPhone = document.getElementById('edit-phone').value;
+              let oldPhoto = document.getElementById('edit-photo').value;
+              const submitBtn = formEditProfile.querySelector('button[type="submit"]');
+              submitBtn.innerText = "Сохранение..."; submitBtn.disabled = true;
+
+              const uploadData = async (photoUrlString) => {
+                  try {
+                      await updateDoc(doc(db, "users", currentUserDocId), { name: newName, phone: newPhone, photoURL: photoUrlString });
+                      document.getElementById('profile-name').innerText = newName;
+                      document.getElementById('profile-avatar').src = photoUrlString;
+                      if (cropper) { cropper.destroy(); cropper = null; }
+                      document.getElementById('crop-container').classList.add('hidden');
+                      closeEditProfile(); window.showToast('success', 'Профиль успешно обновлен!');
+                  } catch (error) { window.showToast('error', 'Ошибка при сохранении!'); } 
+                  finally { submitBtn.innerText = "Сохранить"; submitBtn.disabled = false; }
+              };
+              if (cropper) {
+                  uploadData(cropper.getCroppedCanvas({ width: 150, height: 150 }).toDataURL('image/jpeg', 0.85));
+              } else { uploadData(oldPhoto); }
+          });
+      }
+
+      const btnAiEnhance = document.getElementById('btn-ai-enhance');
+      if (btnAiEnhance) {
+          btnAiEnhance.addEventListener('click', async () => {
+              const descText = document.getElementById('input-desc').value;
+              if (!descText.trim()) { window.showToast('error', 'Напишите текст перед улучшением!'); return; }
+              const originalContent = btnAiEnhance.innerHTML;
+              btnAiEnhance.innerHTML = `<i class="fas fa-spinner fa-spin text-amber-500"></i> Робот думает...`; btnAiEnhance.disabled = true;
+              try {
+                  const response = await fetch('/api/enhance-text', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: descText }) });
+                  const result = await response.json();
+                  if (result.success) { document.getElementById('input-desc').value = result.enhancedText; window.showToast('success', 'Текст улучшен!'); } 
+                  else { window.showToast('error', 'Ошибка сервера ИИ.'); }
+              } catch (error) { window.showToast('error', 'Ошибка соединения с ИИ-сервером.'); } 
+              finally { btnAiEnhance.innerHTML = originalContent; btnAiEnhance.disabled = false; }
+          });
+      }
+
+      const adForm = document.getElementById('ad-form');
+      if (adForm) {
+          adForm.addEventListener('submit', async (e) => {
+              e.preventDefault();
+              const isAnonymous = document.getElementById('input-anonymous').checked;
+              const submitBtn = adForm.querySelector('button[type="submit"]');
+              const originalBtnHtml = submitBtn.innerHTML; 
+              submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-xs"></i> Публикация...`; submitBtn.disabled = true;
+
+              try {
+                  const response = await fetch('/api/ads', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                          category: "Объявления",
+                          title: document.getElementById('input-title').value,
+                          description: document.getElementById('input-desc').value,
+                          price: document.getElementById('input-price').value || "Договорная",
+                          author: isAnonymous ? "Аноним" : document.getElementById('profile-name').innerText,
+                          avatar: isAnonymous ? "" : document.getElementById('profile-avatar').src,
+                          isVerified: isAnonymous ? false : currentUserIsVerified, // 🔥 СЕРВЕРГЕ ГАЛОЧКАНЫ ЖІБЕРЕДІ
+                          images: selectedAdPhotos 
+                      })
+                  });
+                  const result = await response.json();
+                  if (result.success) {
+                      window.showToast('success', 'Отлично! Объявление опубликовано.');
+                      adForm.reset(); document.getElementById('photos-preview').innerHTML = ''; selectedAdPhotos = [];
+                      const adsCountEl = document.getElementById('ads-count');
+                      if (adsCountEl) adsCountEl.innerText = parseInt(adsCountEl.innerText) + 1;
+                  } else { window.showToast('error', 'Ошибка при публикации.'); }
+              } catch (error) { window.showToast('error', 'Слишком большой файл или ошибка сервера.'); } 
+              finally { submitBtn.innerHTML = originalBtnHtml; submitBtn.disabled = false; }
+          });
+      }
+    </script>
+</body>
+</html>

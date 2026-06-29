@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Объявление | NuraNews</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }, colors: { nura: { 500: '#2563eb', 600: '#1d4ed8', 900: '#0f172a', 950: '#020617' } } } }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-nura-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+
+    <header class="bg-white/90 dark:bg-nura-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white shadow-sm">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div><h1 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Назад к списку</h1></div>
+            </a>
+            <a href="/" class="text-xl font-[800] tracking-tight uppercase leading-none text-slate-900 dark:text-white hidden sm:block">NURA<span class="text-nura-600">NEWS</span></a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10">
+        <!-- Жүктелу процесін көрсететін блок -->
+        <div id="loading-spinner" class="flex flex-col justify-center items-center py-20 text-slate-400">
+            <i class="fas fa-spinner fa-spin text-4xl mb-4"></i>
+            <span class="text-xs font-bold uppercase tracking-widest">Загрузка объявления...</span>
+        </div>
+
+        <!-- Негізгі жарнама блогы (Бастапқыда жасырын тұрады) -->
+        <div id="ad-content" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-10">
+            
+            <!-- ⬅️ СОЛ ЖАҚ: Фотогалерея және Сипаттама -->
+            <div class="lg:col-span-8 space-y-8">
+                <!-- Фото блогы -->
+                <div id="gallery-container" class="bg-white dark:bg-slate-900 rounded-3xl p-4 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <!-- Басты үлкен фото шығатын орын -->
+                    <div id="main-image-wrapper" class="relative w-full h-[300px] sm:h-[500px] bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden flex items-center justify-center">
+                        <i class="fas fa-camera text-6xl text-slate-300"></i>
+                    </div>
+                    <!-- Төмендегі кішкентай фотолар (thumbnails) -->
+                    <div id="thumbnails-container" class="flex gap-3 mt-4 overflow-x-auto pb-2 custom-scrollbar empty:hidden"></div>
+                </div>
+
+                <!-- Сипаттама мәтіні -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="text-xl font-[800] text-slate-900 dark:text-white mb-4">Описание</h3>
+                    <p id="ad-description" class="text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line"></p>
+                </div>
+            </div>
+
+            <!-- ➡️ ОҢ ЖАҚ: Бағасы, Авторы және Батырмалар -->
+            <div class="lg:col-span-4 space-y-6">
+                <!-- Ақпарат карточкасы -->
+                <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm sticky top-28">
+                    <div class="flex items-center gap-2 mb-3">
+                        <span id="ad-category" class="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-[9px] font-bold uppercase tracking-widest">Категория</span>
+                        <span id="ad-time" class="text-[10px] font-medium text-slate-400">Время</span>
+                    </div>
+                    
+                    <h1 id="ad-title" class="text-2xl font-[800] text-slate-900 dark:text-white leading-snug mb-4">Название объявления</h1>
+                    <div id="ad-price" class="text-4xl font-[900] text-nura-600 dark:text-nura-400 mb-8">0 ₸</div>
+
+                    <div class="flex flex-col gap-3 mb-8">
+                        <a href="tel:+77064227410" class="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-3">
+                            <i class="fas fa-phone"></i> Позвонить
+                        </a>
+                        <a id="btn-whatsapp" href="#" target="_blank" class="w-full py-4 bg-[#25D366] hover:bg-[#128C7E] text-white rounded-xl font-bold uppercase tracking-widest transition-colors shadow-lg shadow-green-500/30 flex items-center justify-center gap-3">
+                            <i class="fab fa-whatsapp text-xl"></i> Написать WhatsApp
+                        </a>
+                    </div>
+
+                    <!-- Автор туралы блок -->
+                     <!-- 🔥 АВТОР ТУРАЛЫ БЛОК (БАСЫЛАТЫН) -->
+                        <div id="author-profile-link" class="border-t border-slate-100 dark:border-slate-800 pt-6 flex items-center gap-4 group cursor-pointer transition-all">
+                            <div id="ad-avatar-wrapper" class="w-14 h-14 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border border-slate-200 dark:border-slate-700 group-hover:border-nura-500 transition-colors shadow-sm"></div>
+                            <div>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-0.5 group-hover:text-nura-500 transition-colors">Продавец</p>
+                                <p id="ad-author" class="text-sm font-bold text-slate-900 dark:text-white group-hover:text-nura-600 transition-colors">Имя</p>
+                            </div>
+                            <!-- Оң жақтағы бағыттауыш стрелка -->
+                            <i id="author-arrow" class="fas fa-chevron-right ml-auto text-slate-300 group-hover:text-nura-500 transition-colors"></i>
+                        </div>
+                        <!-- Автор туралы блок (БАСЫЛАТЫН) -->
+                    <div id="author-profile-link" class="border-t border-slate-100 dark:border-slate-800 pt-6 flex items-center gap-4 group cursor-pointer transition-all">
+                        <!-- ... (сендегі бар код) ... -->
+                    </div>
+
+                    <!-- 🔥 АЛАЯҚТАРДАН САҚТАНДЫРУ БЛОГЫ (ЖАҢА) -->
+                    <div class="mt-6 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex gap-3">
+                        <i class="fas fa-shield-alt text-amber-500 text-xl shrink-0 mt-0.5"></i>
+                        <div>
+                            <h4 class="text-[11px] font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-1">Совет безопасности</h4>
+                            <p class="text-[11px] text-amber-700/90 dark:text-amber-500/90 leading-relaxed">
+                                Никогда не отправляйте предоплату на карту неизвестным лицам. Осматривайте товар при личной встрече и передавайте деньги только из рук в руки.
+                            </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📦 АВТОРДЫҢ БАСҚА ДА ЖАРНАМАЛАРЫ -->
+        <div id="author-ads-section" class="mt-16 hidden">
+            <h3 class="text-2xl font-[800] text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">Другие объявления автора</h3>
+            <div id="author-ads-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Осы жерге JS арқылы карточкалар түседі -->
+            </div>
+        </div>
+
+    </main>
+
+  <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const adId = urlParams.get('id');
+
+            if (!adId) {
+                alert("Объявление не найдено!"); window.location.href = '/'; return;
+            }
+
+            try {
+                const res = await fetch(`/api/ads/${adId}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    alert("Объявление не найдено или удалено."); window.location.href = '/'; return;
+                }
+
+                const ad = data.ad;
+
+                document.getElementById('loading-spinner').classList.add('hidden');
+                document.getElementById('ad-content').classList.remove('hidden');
+
+                document.getElementById('ad-title').innerText = ad.title;
+                document.getElementById('ad-price').innerText = ad.price;
+                document.getElementById('ad-category').innerText = ad.category;
+                document.getElementById('ad-time').innerText = ad.time;
+                document.getElementById('ad-description').innerText = ad.description;
+                
+                // 🔥 ГАЛОЧКАНЫ ШЫҒАРУ
+                const verifiedSVG = `<svg viewBox="0 0 40 40" class="w-4 h-4 text-blue-500 fill-current inline-block ml-1.5" title="Проверенный продавец"><path d="M19.998 3.094 14.638 0l-2.972 5.15H5.432v6.354L0 14.64 3.094 20 0 25.359l5.432 3.137v5.905h5.975L14.638 40l5.36-3.094L25.358 40l3.232-5.6h6.162v-6.01L40 25.359 36.905 20 40 14.641l-5.248-3.03v-6.46h-6.419L25.358 0l-5.36 3.094Zm7.415 11.225 2.254 2.287-11.43 11.5-6.835-6.93 2.244-2.258 4.587 4.581 9.18-9.18Z" fill-rule="evenodd"></path></svg>`;
+                document.getElementById('ad-author').innerHTML = ad.author + (ad.isVerified ? verifiedSVG : '');
+
+                const authorLinkBtn = document.getElementById('author-profile-link');
+                const authorArrow = document.getElementById('author-arrow');
+                if (ad.author === 'Аноним') {
+                    authorLinkBtn.classList.remove('cursor-pointer', 'group'); authorArrow.classList.add('hidden');
+                } else {
+                    authorLinkBtn.onclick = () => window.location.href = `user-profile.html?name=${encodeURIComponent(ad.author)}`;
+                }
+
+                document.getElementById('btn-whatsapp').href = `https://wa.me/77064227410?text=${encodeURIComponent('Привет, я по поводу объявления: "' + ad.title + '"')}`;
+
+                const avatarWrapper = document.getElementById('ad-avatar-wrapper');
+                if (ad.author === 'Аноним' || !ad.avatar) {
+                    avatarWrapper.innerHTML = `<i class="fas fa-user-secret text-slate-400 text-xl"></i>`;
+                } else {
+                    avatarWrapper.innerHTML = `<img src="${ad.avatar}" class="w-full h-full object-cover">`;
+                }
+
+                const mainImageWrapper = document.getElementById('main-image-wrapper');
+                const thumbnailsContainer = document.getElementById('thumbnails-container');
+                if (ad.images && ad.images.length > 0) {
+                    mainImageWrapper.innerHTML = `<img src="${ad.images[0]}" class="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40"><img id="main-image-view" src="${ad.images[0]}" class="relative z-10 w-full h-full object-contain">`;
+                    if (ad.images.length > 1) {
+                        ad.images.forEach((imgSrc) => {
+                            const thumb = document.createElement('img'); thumb.src = imgSrc;
+                            thumb.className = "w-20 h-20 rounded-xl object-cover cursor-pointer hover:opacity-70 border-2 border-transparent hover:border-nura-500 transition-all flex-shrink-0";
+                            thumb.onclick = () => document.getElementById('main-image-view').src = imgSrc;
+                            thumbnailsContainer.appendChild(thumb);
+                        });
+                    }
+                }
+
+                if (ad.author !== 'Аноним') {
+                    const authorRes = await fetch(`/api/ads/author/${encodeURIComponent(ad.author)}?exclude=${ad.id}`);
+                    const authorAds = await authorRes.json();
+                    if (authorAds.length > 0) {
+                        document.getElementById('author-ads-section').classList.remove('hidden');
+                        const authorContainer = document.getElementById('author-ads-container');
+                        authorAds.forEach(otherAd => {
+                            let coverHTML = `<div class="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-300"><i class="fas fa-camera text-2xl"></i></div>`;
+                            if (otherAd.images && otherAd.images.length > 0) { coverHTML = `<img src="${otherAd.images[0]}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">`; }
+                            const cardHTML = `<a href="ad-detail.html?id=${otherAd.id}" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group block"><div class="relative h-40 w-full overflow-hidden">${coverHTML}<div class="absolute bottom-2 right-2 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-2 py-1 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700"><span class="text-xs font-[900] text-nura-600 dark:text-nura-400">${otherAd.price}</span></div></div><div class="p-4"><h4 class="text-sm font-bold dark:text-white line-clamp-2 group-hover:text-nura-600 transition-colors">${otherAd.title}</h4><p class="text-[10px] text-slate-400 mt-2">${otherAd.time}</p></div></a>`;
+                            authorContainer.insertAdjacentHTML('beforeend', cardHTML);
+                        });
+                    }
+                }
+            } catch (error) { document.getElementById('loading-spinner').innerHTML = '<span class="text-red-500 font-bold">Ошибка соединения с сервером!</span>'; }
+        });
+    </script>
+</body>
+</html>

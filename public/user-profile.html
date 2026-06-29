@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль продавца | NuraNews</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }, colors: { nura: { 500: '#2563eb', 600: '#1d4ed8', 900: '#0f172a', 950: '#020617' } } } } }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-nura-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+
+    <header class="bg-white/90 dark:bg-nura-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto flex items-center justify-between">
+            <a href="javascript:history.back()" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <div class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-white shadow-sm">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div><h1 class="text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">Назад</h1></div>
+            </a>
+            <a href="/" class="text-xl font-[800] tracking-tight uppercase leading-none text-slate-900 dark:text-white hidden sm:block">NURA<span class="text-nura-600">NEWS</span></a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-6 py-10 space-y-8">
+        
+        <!-- Сатушының бас картасы -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row items-center sm:items-start gap-6 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-nura-600 to-nura-400 opacity-10"></div>
+            
+            <div id="seller-avatar-container" class="w-24 h-24 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-4 border-white dark:border-slate-900 shadow-md z-10">
+                <i class="fas fa-user text-3xl text-slate-300"></i>
+            </div>
+            
+            <div class="z-10 text-center sm:text-left">
+                <span class="px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-md text-[10px] font-bold uppercase tracking-widest mb-2 inline-block">Проверенный продавец</span>
+                <h2 id="seller-name" class="text-3xl font-[800] text-slate-900 dark:text-white">Загрузка...</h2>
+                <p class="text-sm text-slate-500 mt-1">Все активные объявления автора</p>
+            </div>
+        </div>
+
+        <!-- Жарнамалар тізімі -->
+        <div>
+            <div class="flex items-center gap-3 mb-6">
+                <h3 class="text-xl font-[800] text-slate-900 dark:text-white">Объявления</h3>
+                <span id="ads-count" class="px-2 py-1 bg-slate-200 dark:bg-slate-800 rounded-lg text-xs font-bold text-slate-600 dark:text-slate-300">0</span>
+            </div>
+            
+            <div id="loading-spinner" class="flex flex-col justify-center items-center py-10 text-slate-400">
+                <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Ищем объявления...</span>
+            </div>
+
+            <div id="seller-ads-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 empty:hidden"></div>
+            
+            <div id="empty-state" class="hidden text-center py-16 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <i class="fas fa-box-open text-5xl text-slate-300 mb-4"></i>
+                <h4 class="text-lg font-bold text-slate-900 dark:text-white">Нет активных объявлений</h4>
+                <p class="text-sm text-slate-500 mt-2">У этого пользователя пока нет других публикаций.</p>
+            </div>
+        </div>
+
+    </main>
+
+  <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCT2EKhuT9AcMTEMpEAXEtqcFiGJIJTPtQ",
+            authDomain: "nuranews-2177c.firebaseapp.com",
+            projectId: "nuranews-2177c",
+            storageBucket: "nuranews-2177c.firebasestorage.app",
+            messagingSenderId: "960132468347",
+            appId: "1:960132468347:web:0fdc35cda6b7ae1a1d5cde"
+        };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const sellerName = urlParams.get('name');
+
+            if (!sellerName) { window.location.href = '/'; return; }
+
+            onAuthStateChanged(auth, (user) => {
+                if (user && (user.displayName === sellerName)) { window.location.href = 'profile.html'; }
+            });
+
+            document.getElementById('seller-name').innerText = sellerName;
+
+            try {
+                const res = await fetch(`/api/ads/author/${encodeURIComponent(sellerName)}`);
+                const ads = await res.json();
+                
+                document.getElementById('loading-spinner').classList.add('hidden');
+                document.getElementById('ads-count').innerText = ads.length;
+                const container = document.getElementById('seller-ads-container');
+                
+                if (ads.length === 0) {
+                    document.getElementById('empty-state').classList.remove('hidden');
+                } else {
+                    if (ads[0].avatar) {
+                        document.getElementById('seller-avatar-container').innerHTML = `<img src="${ads[0].avatar}" class="w-full h-full object-cover">`;
+                    }
+                    
+                    // 🔥 ҮЛКЕН АТЫНЫҢ ЖАНЫНА ГАЛОЧКА ҚОЮ
+                    if (ads[0].isVerified) {
+                        const verifiedSVG = `<svg viewBox="0 0 40 40" class="w-6 h-6 text-blue-500 fill-current inline-block ml-3" title="Проверенный продавец"><path d="M19.998 3.094 14.638 0l-2.972 5.15H5.432v6.354L0 14.64 3.094 20 0 25.359l5.432 3.137v5.905h5.975L14.638 40l5.36-3.094L25.358 40l3.232-5.6h6.162v-6.01L40 25.359 36.905 20 40 14.641l-5.248-3.03v-6.46h-6.419L25.358 0l-5.36 3.094Zm7.415 11.225 2.254 2.287-11.43 11.5-6.835-6.93 2.244-2.258 4.587 4.581 9.18-9.18Z" fill-rule="evenodd"></path></svg>`;
+                        document.getElementById('seller-name').innerHTML = sellerName + verifiedSVG;
+                    }
+
+                    ads.forEach(item => {
+                        let coverHTML = `<div class="absolute inset-0 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-300"><i class="fas fa-camera text-3xl"></i></div>`;
+                        if (item.images && item.images.length > 0) {
+                            coverHTML = `<img src="${item.images[0]}" class="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 dark:opacity-30 z-0 transform scale-110"><img src="${item.images[0]}" class="absolute inset-0 w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500 z-10">`;
+                        }
+                        const cardHTML = `<a href="ad-detail.html?id=${item.id}" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full"><div class="relative h-48 w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">${coverHTML}<div class="absolute top-3 left-3 z-20"><span class="px-2 py-1 bg-slate-900/80 backdrop-blur-md text-white rounded-md text-[9px] font-bold uppercase tracking-widest shadow-sm">${item.category}</span></div><div class="absolute bottom-3 right-3 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md px-2 py-1 rounded-lg shadow-md border border-slate-200 dark:border-slate-700"><span class="text-xs font-[900] text-nura-600 dark:text-nura-400">${item.price}</span></div></div><div class="p-5 flex-1 flex flex-col justify-between"><div><h4 class="text-sm font-bold text-slate-900 dark:text-white line-clamp-2 group-hover:text-nura-600 transition-colors mb-2">${item.title}</h4><p class="text-[10px] text-slate-400 flex items-center gap-1"><i class="far fa-clock"></i> ${item.time}</p></div></div></a>`;
+                        container.insertAdjacentHTML('beforeend', cardHTML);
+                    });
+                }
+            } catch (error) { document.getElementById('loading-spinner').innerHTML = '<span class="text-red-500 font-bold">Ошибка соединения с сервером!</span>'; }
+        });
+    </script>
+</body>
+</html>

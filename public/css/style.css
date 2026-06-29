@@ -1,0 +1,39 @@
+/* Custom Styles for NuraNews Premium Portal */
+
+/* Шынайы әйнек эффектісі (Premium Glassmorphism) */
+.glass-effect {
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+/* Жарнама карталарына арналған жұмсақ анимация (Hover) */
+.hover-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.1);
+    border-color: rgba(37, 99, 235, 0.3); /* Көк түсті жарық */
+}
+
+/* Түнгі режимдегі көлеңкелерді реттеу */
+.dark .hover-card:hover {
+    box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.6);
+    border-color: rgba(37, 99, 235, 0.5);
+}
+
+/* Scrollbar дизайны */
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 10px;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background-color: #334155;
+}
