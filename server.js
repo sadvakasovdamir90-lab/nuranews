@@ -93,7 +93,7 @@ app.post('/api/enhance-text', async (req, res) => {
     }
 });
 
-// 6. 🛡️ ТЕЛЕГРАМ АВТОРИЗАЦИЯСЫН ҚАБЫЛДАУ
+// ТЕЛЕГРАМ АВТОРИЗАЦИЯСЫН ҚАБЫЛДАУ
 app.post('/api/auth/telegram', (req, res) => {
     const user = req.body;
     
